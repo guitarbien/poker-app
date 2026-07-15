@@ -6,7 +6,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       all: true,
-      include: ['src/engine/**/*.ts', 'src/cpu/**/*.ts', 'src/features/table/session.ts'],
+      include: ['src/engine/**/*.ts', 'src/cpu/**/*.ts', 'src/features/table/session.ts', 'src/storage/**/*.ts'],
       exclude: ['**/*.test.ts'],
       thresholds: { lines: 85, functions: 85, branches: 85, statements: 85 },
     },
