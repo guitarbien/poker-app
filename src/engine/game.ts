@@ -174,12 +174,14 @@ function inHandPlayers(state: GameState): Player[] {
   return state.players.filter((p) => p.state !== 'folded');
 }
 
-export function legalActions(state: GameState): {
+export interface LegalActions {
   fold: boolean;
   check: boolean;
   call: { amount: number } | null;
   raise: { min: number; max: number } | null;
-} {
+}
+
+export function legalActions(state: GameState): LegalActions {
   if (state.toAct === null || state.street === 'handOver' || state.street === 'showdown') {
     return { fold: false, check: false, call: null, raise: null };
   }

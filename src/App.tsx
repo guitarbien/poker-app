@@ -6,25 +6,25 @@ import { TableScreen } from './features/table/TableScreen';
 
 function App() {
   const [screen, setScreen] = useState<'home' | 'table'>('home');
-  const { state, dispatch } = useTable();
+  const table = useTable();
 
   function handleStart(config: SessionConfig) {
-    dispatch({ type: 'start', config });
+    table.start(config);
     setScreen('table');
   }
 
   function handleExit() {
-    dispatch({ type: 'exit' });
+    table.exit();
     setScreen('home');
   }
 
   if (screen === 'table') {
     return (
       <TableScreen
-        state={state}
-        onAction={(action) => dispatch({ type: 'humanAction', action })}
-        onNextHand={() => dispatch({ type: 'nextHand' })}
-        onRebuyAndNext={() => dispatch({ type: 'humanRebuyAndNext' })}
+        state={table.state}
+        onAction={table.act}
+        onNextHand={table.nextHand}
+        onRebuyAndNext={table.rebuyAndNext}
         onExit={handleExit}
       />
     );

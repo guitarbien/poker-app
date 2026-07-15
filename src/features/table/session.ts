@@ -54,5 +54,7 @@ export function nextHandConfig(state: GameState, deck: Card[]): NewHandConfig {
 export function humanRebuy(state: GameState): GameState {
   const buyIn = BUY_IN_BB * state.blinds.bb;
   const human = state.players.find((p) => !p.isCpu)!;
-  return rebuy(state, human.seat, buyIn - human.stack);
+  const amount = Math.max(0, buyIn - human.stack);
+  if (amount === 0) return state;
+  return rebuy(state, human.seat, amount);
 }

@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { Action, GameState } from '../../engine/game';
+import type { Action, GameState, LegalActions } from '../../engine/game';
 import styles from './ActionBar.module.css';
-
-type LegalActions = {
-  fold: boolean;
-  check: boolean;
-  call: { amount: number } | null;
-  raise: { min: number; max: number } | null;
-};
 
 interface Props {
   game: GameState;
