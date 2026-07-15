@@ -86,3 +86,20 @@ export function best7(seven: readonly Card[]): { score: number; five: Card[] } {
 export function evaluate7(seven: readonly Card[]): number {
   return best7(seven).score;
 }
+
+export function bestHand(cards: readonly Card[]): { score: number; five: Card[] } {
+  if (cards.length === 5) return { score: evaluate5(cards), five: [...cards] };
+  if (cards.length === 7) return best7(cards);
+  if (cards.length !== 6) throw new Error('bestHand 需要 5–7 張牌');
+  let bestScore = -1;
+  let bestFive: Card[] = [];
+  for (let i = 0; i < 6; i++) {
+    const five = cards.filter((_, k) => k !== i);
+    const score = evaluate5(five);
+    if (score > bestScore) {
+      bestScore = score;
+      bestFive = five;
+    }
+  }
+  return { score: bestScore, five: bestFive };
+}

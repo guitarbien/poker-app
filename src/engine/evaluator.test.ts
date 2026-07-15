@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { cards } from './deck';
-import { HAND_CATEGORY as H, evaluate5, evaluate7, best7, decodeScore } from './evaluator';
+import { HAND_CATEGORY as H, evaluate5, evaluate7, best7, decodeScore, bestHand } from './evaluator';
 
 const cat5 = (...s: string[]) => decodeScore(evaluate5(cards(...s))).category;
 
@@ -102,5 +102,31 @@ describe('evaluate7 / best7', () => {
 
   it('張數不是 7 丟錯誤', () => {
     expect(() => evaluate7(cards('As', 'Kd', 'Qh'))).toThrow();
+  });
+});
+
+describe('bestHand（5–7 張）', () => {
+  it('5 張直接評分', () => {
+    const five = cards('As', 'Kd', 'Qh', 'Jc', '9s');
+    expect(bestHand(five).score).toBe(evaluate5(five));
+  });
+
+  it('6 張（turn）取最佳 5 張：丟掉破壞順子的牌', () => {
+    const six = cards('9s', '8d', '2c', '7h', '6c', '5s');
+    const { score, five } = bestHand(six);
+    expect(decodeScore(score).category).toBe(H.STRAIGHT);
+    expect(decodeScore(score).tiebreakers[0]).toBe(7); // 9 高順子
+    expect(five).toHaveLength(5);
+    expect(evaluate5(five)).toBe(score);
+  });
+
+  it('7 張與 best7 等價', () => {
+    const seven = cards('Ah', 'Ad', 'Kh', 'Kd', 'Kc', 'Qs', '2d');
+    expect(bestHand(seven).score).toBe(best7(seven).score);
+  });
+
+  it('4 張或 8 張丟錯誤', () => {
+    expect(() => bestHand(cards('As', 'Kd', 'Qh', 'Jc'))).toThrow();
+    expect(() => bestHand(cards('As', 'Kd', 'Qh', 'Jc', '9s', '8d', '7h', '2c'))).toThrow();
   });
 });
