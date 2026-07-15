@@ -4,7 +4,7 @@ import { legalActions } from '../engine/game';
 import { bestHand, decodeScore } from '../engine/evaluator';
 import { rankOf } from '../engine/deck';
 
-// 粗略強度 0–8：preflop 用查表、postflop 用當前成牌類別
+// 粗略強度 0–4：preflop 用查表、postflop 用當前成牌類別映射
 function roughStrength(state: GameState, seat: number): number {
   const p = state.players.find((x) => x.seat === seat)!;
   const [a, b] = p.hole!;
