@@ -1,0 +1,91 @@
+.seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 110px;
+  position: relative;
+}
+
+.seat.folded {
+  opacity: 0.4;
+}
+
+.seat.toAct .avatar {
+  box-shadow: 0 0 0 3px #f5d85a, 0 0 12px #f5d85a;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2d4a6e;
+  color: #e8f4fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid #4a6fa5;
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+  align-items: center;
+}
+
+.stack {
+  color: #e8f4fd;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.position {
+  background: #4a3520;
+  color: #f5d85a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.dealer {
+  background: #f5d85a;
+  color: #1a1a1a;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 50%;
+}
+
+.allIn {
+  background: #c0392b;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.cards {
+  display: flex;
+  gap: 3px;
+}
+
+.committed {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #8b6914;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+}

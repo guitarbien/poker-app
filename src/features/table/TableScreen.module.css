@@ -1,0 +1,108 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #0f1923;
+  color: #e8f4fd;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  background: rgba(0,0,0,0.4);
+  font-size: 13px;
+  color: #9ab;
+}
+
+.arena {
+  position: relative;
+  width: min(900px, 100%);
+  height: 520px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.table {
+  position: absolute;
+  left: 18%;
+  top: 14%;
+  width: 64%;
+  height: 72%;
+  background: #1a5c38;
+  border-radius: 50%;
+  border: 10px solid #6b4c1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.board {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.pot {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f5d85a;
+}
+
+.handNumber {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Seat positions: clockwise from bottom (seat 0 = human at bottom) */
+.seatWrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.result {
+  background: rgba(0,0,0,0.85);
+  border: 1px solid #4a6fa5;
+  border-radius: 8px;
+  padding: 16px 24px;
+  margin: 0 auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+.resultLine {
+  font-size: 15px;
+  margin: 4px 0;
+}
+
+.resultActions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.resultActions button {
+  padding: 10px 24px;
+  border-radius: 6px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #2d4a6e;
+  color: #e8f4fd;
+}
+
+.resultActions button:hover {
+  background: #3a5d8a;
+}
+
+.footer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
