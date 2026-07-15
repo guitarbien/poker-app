@@ -1,6 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { createDeck } from './deck';
+import { createDeck, cards as c } from './deck';
 import { newHand, positionOf, nextButton, legalActions, applyAction, type NewHandConfig } from './game';
+
+// 打造指定手牌的牌序：依發牌順序（button 下一位起每人 2 張）+ 公共牌
+// holesInDealOrder: 依「發牌順序」排列的手牌；board: 5 張；其餘塞不影響結果的牌
+function riggedDeck(holesInDealOrder: string[][], board: string[]): number[] {
+  const used = [...holesInDealOrder.flat(), ...board].map((s) => {
+    const card = c(s)[0];
+    return card;
+  });
+  const hole = holesInDealOrder.flat().map((s) => c(s)[0]);
+  const boardCards = board.map((s) => c(s)[0]);
+  const rest = createDeck().filter((x) => !used.includes(x));
+  return [...hole, ...boardCards, ...rest];
+}
 
 // 測試用固定牌序（未洗牌：0,1,2,...,51）
 export function config6(overrides: Partial<NewHandConfig> = {}): NewHandConfig {
@@ -271,5 +284,108 @@ describe('純函式', () => {
     const before = JSON.stringify(s);
     applyAction(s, { type: 'call' });
     expect(JSON.stringify(s)).toBe(before);
+  });
+});
+
+describe('彩池結算', () => {
+  it('全下對決：贏家收池、籌碼守恆', () => {
+    // HU：button=0 先行動。rig：seat1 先發牌（button 下一位）
+    // seat1 拿 AA、seat0 拿 KK，board 無意外 → seat1 贏
+    let s = newHand(config6({
+      players: [
+        { seat: 0, stack: 100, isCpu: false },
+        { seat: 1, stack: 100, isCpu: true },
+      ],
+      button: 0,
+      deck: riggedDeck([['As', 'Ah'], ['Ks', 'Kh']], ['2c', '7d', '9h', '3s', '4d']),
+    }));
+    s = applyAction(s, { type: 'raise', to: 100 }); // seat0 all-in
+    s = applyAction(s, { type: 'call' });           // seat1 call → run-out
+    expect(s.street).toBe('handOver');
+    expect(s.result).not.toBeNull();
+    expect(s.players[1].stack).toBe(200);
+    expect(s.players[0].stack).toBe(0);
+    expect(s.players[0].stack + s.players[1].stack).toBe(200);
+  });
+
+  it('未跟注的超額下注退還（A 加注 100、BB 只有 40 跟注 all-in）', () => {
+    let s = newHand(config6({
+      players: [
+        { seat: 0, stack: 200, isCpu: false }, // BTN
+        { seat: 1, stack: 200, isCpu: true },  // SB
+        { seat: 2, stack: 40, isCpu: true },   // BB 短籌碼
+      ],
+      button: 0,
+      // 發牌順序 seat1, seat2, seat0
+      deck: riggedDeck([['2c', '3d'], ['Ks', 'Kh'], ['As', 'Ah']], ['2h', '7d', '9h', '3s', '4d']),
+    }));
+    s = applyAction(s, { type: 'raise', to: 100 }); // seat0
+    s = applyAction(s, { type: 'fold' });           // seat1 (SB, 已投 1)
+    s = applyAction(s, { type: 'call' });           // seat2 call all-in 40
+    expect(s.street).toBe('handOver');
+    // seat0 拿回未被跟注的 60；彩池 = 40+40+1 = 81
+    // seat0 AA 贏 → stack = 200 - 100 + 60 + 81 = 241
+    expect(s.players[0].stack).toBe(241);
+    expect(s.players[2].stack).toBe(0);
+    const total = s.players.reduce((sum, p) => sum + p.stack, 0);
+    expect(total).toBe(200 + 200 + 40);
+  });
+
+  it('三層邊池各自分給正確的贏家', () => {
+    // stacks 100/60/30 全 all-in preflop
+    // seat1(SB,60) 拿 AA、seat2(BB,30) 拿 KK、seat0(BTN,100) 拿 QQ
+    // 退還 seat0 40 → 分層：主池 30×3=90（KK 輸 AA 輸…等 evaluate 決定）
+    // 結果：主池(90) AA 贏、邊池(60) AA 贏 → seat1 全拿 150
+    let s = newHand(config6({
+      players: [
+        { seat: 0, stack: 100, isCpu: false },
+        { seat: 1, stack: 60, isCpu: true },
+        { seat: 2, stack: 30, isCpu: true },
+      ],
+      button: 0,
+      deck: riggedDeck([['As', 'Ah'], ['Ks', 'Kh'], ['Qs', 'Qh']], ['2c', '7d', '9h', '3s', '4d']),
+    }));
+    s = applyAction(s, { type: 'raise', to: 100 }); // seat0 all-in 100
+    s = applyAction(s, { type: 'call' });           // seat1 all-in 60
+    s = applyAction(s, { type: 'call' });           // seat2 all-in 30
+    expect(s.street).toBe('handOver');
+    expect(s.players[0].stack).toBe(40);  // 退還 40，QQ 全輸
+    expect(s.players[1].stack).toBe(150); // 主池 90 + 邊池 60
+    expect(s.players[2].stack).toBe(0);
+    expect(s.result).toHaveLength(2);
+  });
+
+  it('平手分池：奇數籌碼給 button 左側第一位贏家', () => {
+    // 3 人。SB 棄牌貢獻 1 → 池 = 2+2+1 = 5
+    // seat2(BB) 與 seat0(BTN) 手牌讓公共牌成為最佳五張（board 皇家同花順）→ 平手
+    let s = newHand(config6({
+      players: [
+        { seat: 0, stack: 200, isCpu: false },
+        { seat: 1, stack: 200, isCpu: true },
+        { seat: 2, stack: 200, isCpu: true },
+      ],
+      button: 0,
+      deck: riggedDeck([['2c', '3d'], ['2h', '3c'], ['2s', '3h']], ['As', 'Ks', 'Qs', 'Js', 'Ts']),
+    }));
+    s = applyAction(s, { type: 'call' });  // seat0 call 2
+    s = applyAction(s, { type: 'fold' });  // seat1 SB 棄（貢獻 1）
+    s = applyAction(s, { type: 'check' }); // seat2 BB
+    // flop/turn/river 全 check（先行動者是 seat2=BB…button 後第一個 active）
+    for (let i = 0; i < 6; i++) s = applyAction(s, { type: 'check' });
+    expect(s.street).toBe('handOver');
+    // 池 5，平分 2/2，餘 1 給 button 順時針第一位贏家 = seat2
+    expect(s.players[2].stack).toBe(200 - 2 + 3);
+    expect(s.players[0].stack).toBe(200 - 2 + 2);
+    const total = s.players.reduce((sum, p) => sum + p.stack, 0);
+    expect(total).toBe(600);
+  });
+
+  it('全員棄牌：贏家收池且 handRank 為 null', () => {
+    let s = newHand(config6());
+    s = play(s, { type: 'fold' }, { type: 'fold' }, { type: 'fold' }, { type: 'fold' }, { type: 'fold' });
+    expect(s.street).toBe('handOver');
+    expect(s.result![0].winners[0].seat).toBe(2); // BB 收池
+    expect(s.result![0].winners[0].handRank).toBeNull();
+    expect(s.players[2].stack).toBe(198 + 3); // 拿回自己的 2 + SB 的 1
   });
 });

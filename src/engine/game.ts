@@ -1,5 +1,6 @@
 import type { Card } from './deck';
 import type { Position } from './ranges';
+import { evaluate7 } from './evaluator';
 
 export type Street = 'preflop' | 'flop' | 'turn' | 'river' | 'showdown' | 'handOver';
 export type Difficulty = 'easy' | 'normal' | 'hard';
@@ -258,10 +259,84 @@ function startNextStreetForRunOut(state: GameState): void {
   dealBoard(state, next.deal);
 }
 
-// Task 7 會完整實作彩池結算；本任務的 stub 僅轉換狀態讓狀態機不卡住
 function settleHand(state: GameState): void {
   state.street = 'handOver';
   state.toAct = null;
+
+  // 1. 未跟注退還
+  const totals = state.players.map((p) => p.totalCommitted);
+  const maxC = Math.max(...totals);
+  const topPlayers = state.players.filter((p) => p.totalCommitted === maxC);
+  if (topPlayers.length === 1 && maxC > 0) {
+    const second = Math.max(...state.players
+      .filter((p) => p !== topPlayers[0])
+      .map((p) => p.totalCommitted));
+    const refund = maxC - second;
+    topPlayers[0].stack += refund;
+    topPlayers[0].totalCommitted -= refund;
+  }
+
+  // 2. 分層彩池
+  const inHand = state.players.filter((p) => p.state !== 'folded');
+  const levels = [...new Set(inHand.map((p) => p.totalCommitted))]
+    .filter((x) => x > 0)
+    .sort((a, b) => a - b);
+  const pots: { amount: number; eligible: number[] }[] = [];
+  let prev = 0;
+  for (const level of levels) {
+    const amount = state.players.reduce(
+      (sum, p) => sum + Math.max(0, Math.min(p.totalCommitted, level) - prev), 0,
+    );
+    const eligible = inHand.filter((p) => p.totalCommitted >= level).map((p) => p.seat);
+    if (amount > 0) pots.push({ amount, eligible });
+    prev = level;
+  }
+  // 死錢歸池：棄牌玩家投入超過最高 in-hand level 的部分歸入最高邊池。
+  // 缺這段會讓籌碼憑空消失（soak 測試第 64 手可復現：兩位玩家 preflop 各投入 311
+  // 後棄牌，剩餘 all-in 玩家最高 level 只有 200，超出的 111×2 不屬於任何池）
+  const leftover = state.players.reduce(
+    (sum, p) => sum + Math.max(0, p.totalCommitted - prev), 0,
+  );
+  if (leftover > 0 && pots.length > 0) pots[pots.length - 1].amount += leftover;
+  state.pots = pots;
+
+  // 3. 每池決定贏家並分配
+  const showdown = inHand.length > 1;
+  const scores = new Map<number, number>();
+  if (showdown) {
+    for (const p of inHand) scores.set(p.seat, evaluate7([...p.hole!, ...state.board]));
+  }
+
+  // button 順時針順序（分配餘數用）
+  const n = state.players.length;
+  const buttonIdx = state.players.findIndex((p) => p.seat === state.button);
+  const clockwise = Array.from({ length: n }, (_, i) => state.players[(buttonIdx + 1 + i) % n].seat);
+
+  const result: PotResult[] = [];
+  pots.forEach((pot, potIndex) => {
+    let winnerSeats: number[];
+    let rankOfWinner: number | null;
+    if (showdown) {
+      const best = Math.max(...pot.eligible.map((seat) => scores.get(seat)!));
+      winnerSeats = pot.eligible.filter((seat) => scores.get(seat) === best);
+      rankOfWinner = best;
+    } else {
+      winnerSeats = pot.eligible;
+      rankOfWinner = null;
+    }
+    const base = Math.floor(pot.amount / winnerSeats.length);
+    let remainder = pot.amount - base * winnerSeats.length;
+    const ordered = clockwise.filter((seat) => winnerSeats.includes(seat));
+    const winners = ordered.map((seat) => {
+      const extra = remainder > 0 ? 1 : 0;
+      if (remainder > 0) remainder--;
+      const amount = base + extra;
+      state.players.find((p) => p.seat === seat)!.stack += amount;
+      return { seat, amount, handRank: rankOfWinner };
+    });
+    result.push({ potIndex, winners });
+  });
+  state.result = result;
 }
 
 export function applyAction(state: GameState, action: Action): GameState {
