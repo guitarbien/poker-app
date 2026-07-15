@@ -42,6 +42,19 @@ describe('settleBetweenHands', () => {
     expect(r.humanBusted).toBe(false);
     expect(r.state.players.map((p) => p.stack)).toEqual(s.players.map((p) => p.stack));
   });
+
+  it('多個 CPU 同時破產：全部補滿且互不覆蓋', () => {
+    let s = playToHandOver();
+    s = structuredClone(s);
+    s.players[1].stack = 0;
+    s.players[3].stack = 0;
+    s.players[5].stack = 0;
+    const r = settleBetweenHands(s);
+    expect(r.state.players[1].stack).toBe(BUY_IN_BB * 2);
+    expect(r.state.players[3].stack).toBe(BUY_IN_BB * 2);
+    expect(r.state.players[5].stack).toBe(BUY_IN_BB * 2);
+    expect(r.humanBusted).toBe(false);
+  });
 });
 
 describe('nextHandConfig', () => {
@@ -59,6 +72,14 @@ describe('humanRebuy', () => {
     let s = playToHandOver();
     s = structuredClone(s);
     s.players[0].stack = 0;
+    const after = humanRebuy(s);
+    expect(after.players[0].stack).toBe(BUY_IN_BB * 2);
+  });
+
+  it('人類籌碼未歸零時補差額至買入上限', () => {
+    let s = playToHandOver();
+    s = structuredClone(s);
+    s.players[0].stack = 37;
     const after = humanRebuy(s);
     expect(after.players[0].stack).toBe(BUY_IN_BB * 2);
   });
