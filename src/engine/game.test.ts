@@ -93,12 +93,28 @@ describe('positionOf', () => {
       .toEqual(['BTN', 'SB', 'BB', 'UTG', 'MP', 'CO']);
   });
 
+  it('3 人：BTN/SB/BB', () => {
+    const s = newHand(config6({
+      players: [0, 1, 2].map((seat) => ({ seat, stack: 200, isCpu: seat !== 0 })),
+      button: 0,
+    }));
+    expect([0, 1, 2].map((x) => positionOf(s, x))).toEqual(['BTN', 'SB', 'BB']);
+  });
+
   it('4 人：CO/BTN/SB/BB（spec §5 範例）', () => {
     const s = newHand(config6({
       players: [0, 1, 2, 3].map((seat) => ({ seat, stack: 200, isCpu: seat !== 0 })),
       button: 1,
     }));
     expect([1, 2, 3, 0].map((x) => positionOf(s, x))).toEqual(['BTN', 'SB', 'BB', 'CO']);
+  });
+
+  it('5 人：MP/CO/BTN/SB/BB（spec §5 範例）', () => {
+    const s = newHand(config6({
+      players: [0, 1, 2, 3, 4].map((seat) => ({ seat, stack: 200, isCpu: seat !== 0 })),
+      button: 2,
+    }));
+    expect([2, 3, 4, 0, 1].map((x) => positionOf(s, x))).toEqual(['BTN', 'SB', 'BB', 'MP', 'CO']);
   });
 
   it('2 人：BTN 與 BB', () => {
@@ -412,5 +428,41 @@ describe('rebuy', () => {
     const s = handOverState();
     expect(() => rebuy(s, 1, 500)).toThrowError(/BAD_AMOUNT/);
     expect(() => rebuy(s, 1, 0)).toThrowError(/BAD_AMOUNT/);
+  });
+});
+
+describe('newHand 邊界', () => {
+  it('stack 為 0 的玩家不可入局', () => {
+    expect(() => newHand(config6({
+      players: [
+        { seat: 0, stack: 200, isCpu: false },
+        { seat: 1, stack: 0, isCpu: true },
+      ],
+    }))).toThrowError(/BAD_AMOUNT/);
+  });
+
+  it('HU：SB 貼盲即 all-in 時，toAct 指向 BB 而非 all-in 玩家', () => {
+    const s = newHand(config6({
+      players: [
+        { seat: 0, stack: 1, isCpu: false }, // button/SB 只有 1
+        { seat: 1, stack: 200, isCpu: true },
+      ],
+      button: 0,
+    }));
+    expect(s.players[0].state).toBe('allin');
+    expect(s.toAct).toBe(1);
+  });
+
+  it('雙盲皆貼盲 all-in：直接 run-out 結算', () => {
+    const s = newHand(config6({
+      players: [
+        { seat: 0, stack: 1, isCpu: false },
+        { seat: 1, stack: 2, isCpu: true },
+      ],
+      button: 0,
+    }));
+    expect(s.street).toBe('handOver');
+    expect(s.result).not.toBeNull();
+    expect(s.board).toHaveLength(5);
   });
 });
