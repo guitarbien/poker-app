@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import type { Action, GameState } from '../../engine/game';
-import { legalActions } from '../../engine/game';
 import styles from './ActionBar.module.css';
+
+type LegalActions = {
+  fold: boolean;
+  check: boolean;
+  call: { amount: number } | null;
+  raise: { min: number; max: number } | null;
+};
 
 interface Props {
   game: GameState;
+  legalActions: LegalActions;
   onAction: (action: Action) => void;
 }
 
-export function ActionBar({ game, onAction }: Props) {
-  const la = legalActions(game);
+export function ActionBar({ game, legalActions: la, onAction }: Props) {
   const pot = game.players.reduce((s, p) => s + p.totalCommitted, 0);
   const minRaise = la.raise?.min ?? 0;
   const maxRaise = la.raise?.max ?? 0;

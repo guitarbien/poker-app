@@ -25,6 +25,13 @@ interface Props {
   onExit: () => void;
 }
 
+const STREET_NAMES: Record<string, string> = {
+  preflop: '翻牌前',
+  flop: '翻牌',
+  turn: '轉牌',
+  river: '河牌',
+};
+
 export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExit }: Props) {
   const { game, humanBusted } = state;
   if (!game) return null;
@@ -35,8 +42,8 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
   // Show hole cards for non-folded players when it was a showdown
   const isShowdown = game.result?.some((r) => r.winners.some((w) => w.handRank !== null)) ?? false;
 
-  const la = legalActions(game);
-  const hasActions = la.fold || la.check || la.call !== null || la.raise !== null;
+  const la = isHandOver ? null : legalActions(game);
+  const hasActions = la !== null && (la.fold || la.check || la.call !== null || la.raise !== null);
 
   return (
     <div className={styles.screen}>
@@ -53,7 +60,7 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
             ))}
           </div>
           <div className={styles.pot}>彩池 {pot}</div>
-          <div className={styles.handNumber}>{game.street}</div>
+          <div className={styles.handNumber}>{isHandOver ? '' : STREET_NAMES[game.street] ?? ''}</div>
         </div>
 
         {game.players.map((player) => {
@@ -105,8 +112,8 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
           </div>
         )}
 
-        {!isHandOver && hasActions && (
-          <ActionBar game={game} onAction={onAction} />
+        {hasActions && (
+          <ActionBar game={game} legalActions={la} onAction={onAction} />
         )}
       </div>
     </div>
