@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createDeck, cards as c } from './deck';
-import { newHand, positionOf, nextButton, legalActions, applyAction, type NewHandConfig } from './game';
+import { newHand, positionOf, nextButton, legalActions, applyAction, rebuy, type NewHandConfig } from './game';
 
 // 打造指定手牌的牌序：依發牌順序（button 下一位起每人 2 張）+ 公共牌
 // holesInDealOrder: 依「發牌順序」排列的手牌；board: 5 張；其餘塞不影響結果的牌
@@ -387,5 +387,30 @@ describe('彩池結算', () => {
     expect(s.result![0].winners[0].seat).toBe(2); // BB 收池
     expect(s.result![0].winners[0].handRank).toBeNull();
     expect(s.players[2].stack).toBe(198 + 3); // 拿回自己的 2 + SB 的 1
+  });
+});
+
+describe('rebuy', () => {
+  function handOverState() {
+    let s = newHand(config6());
+    return play(s, { type: 'fold' }, { type: 'fold' }, { type: 'fold' }, { type: 'fold' }, { type: 'fold' });
+  }
+
+  it('handOver 時可補碼到買入上限', () => {
+    const s = handOverState();
+    const after = rebuy(s, 1, 1); // SB 輸了 1，補回
+    expect(after.players[1].stack).toBe(200);
+    expect(s.players[1].stack).toBe(199); // 純函式
+  });
+
+  it('牌局進行中丟 BAD_TIMING', () => {
+    const s = newHand(config6());
+    expect(() => rebuy(s, 0, 10)).toThrowError(/BAD_TIMING/);
+  });
+
+  it('超過買入上限丟 BAD_AMOUNT、非正數丟 BAD_AMOUNT', () => {
+    const s = handOverState();
+    expect(() => rebuy(s, 1, 500)).toThrowError(/BAD_AMOUNT/);
+    expect(() => rebuy(s, 1, 0)).toThrowError(/BAD_AMOUNT/);
   });
 });

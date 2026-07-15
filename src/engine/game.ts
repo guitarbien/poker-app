@@ -393,3 +393,19 @@ export function applyAction(state: GameState, action: Action): GameState {
   p.actedThisRound = true;
   return afterAction(s);
 }
+
+export function rebuy(state: GameState, seat: number, amount: number): GameState {
+  if (state.street !== 'handOver') {
+    throw new EngineError('BAD_TIMING', '只能在手與手之間補碼');
+  }
+  if (amount <= 0) throw new EngineError('BAD_AMOUNT', '補碼金額必須為正');
+  const s = clone(state);
+  const p = s.players.find((x) => x.seat === seat);
+  if (!p) throw new EngineError('BAD_AMOUNT', `座位 ${seat} 不存在`);
+  const cap = 100 * s.blinds.bb;
+  if (p.stack + amount > cap) {
+    throw new EngineError('BAD_AMOUNT', `補碼後不得超過買入上限 ${cap}`);
+  }
+  p.stack += amount;
+  return s;
+}
