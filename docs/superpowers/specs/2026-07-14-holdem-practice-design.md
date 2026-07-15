@@ -154,6 +154,7 @@ interface HandRecord {
   actions: { seat: number; street: string; action: Action; potAfter: number }[];
   board: Card[];
   potResults: PotResult[];
+  humanNet: number;      // 人類本手淨損益（結束 stack − 起始 stack）；戰績與歷史列表用，M3 起 v1 即含此欄位
   flags: ReviewFlag[];   // 決策評分結果，評分完成後寫入
 }
 // 回放 = 以初始狀態依序重放 actions（重用 engine 的 applyAction）；跳至某街 = 重放至該街第一個動作
