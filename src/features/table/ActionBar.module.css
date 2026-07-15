@@ -72,3 +72,40 @@
 .quickBtns button:hover:not(:disabled) {
   background: #4a5c38;
 }
+
+/* ── Mobile portrait (max 767px) ───────────────────────── */
+@media (max-width: 767px) {
+  .bar {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .bar button {
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 15px;
+  }
+
+  .raiseSection {
+    width: 100%;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .raiseSection input[type='range'] {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .quickBtns {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .quickBtns button {
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

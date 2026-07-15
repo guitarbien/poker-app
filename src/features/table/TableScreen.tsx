@@ -53,6 +53,29 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
       </div>
 
       <div className={styles.arena}>
+        {/* CPU seats — desktop: absolute around oval; mobile: horizontal strip at top */}
+        <div className={styles.opponentStrip}>
+          {game.players.filter((p) => p.isCpu).map((player) => {
+            const pos = SEAT_POS[player.seat];
+            const showHole = isHandOver ? isShowdown && player.state !== 'folded' : false;
+            return (
+              <div
+                key={player.seat}
+                className={styles.seatWrap}
+                style={{ left: pos.left, top: pos.top }}
+              >
+                <Seat
+                  player={player}
+                  isButton={player.seat === game.button}
+                  isToAct={player.seat === game.toAct}
+                  showHole={showHole}
+                  position={positionOf(game, player.seat)}
+                />
+              </div>
+            );
+          })}
+        </div>
+
         <div className={styles.table}>
           <div className={styles.board}>
             {game.board.map((card, i) => (
@@ -63,15 +86,14 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
           <div className={styles.handNumber}>{isHandOver ? '' : STREET_NAMES[game.street] ?? ''}</div>
         </div>
 
-        {game.players.map((player) => {
+        {/* Human seat — desktop: absolute at bottom; mobile: above action bar */}
+        {game.players.filter((p) => !p.isCpu).map((player) => {
           const pos = SEAT_POS[player.seat];
-          const showHole = isHandOver
-            ? isShowdown && player.state !== 'folded'
-            : !player.isCpu;
+          const showHole = isHandOver ? isShowdown && player.state !== 'folded' : true;
           return (
             <div
               key={player.seat}
-              className={styles.seatWrap}
+              className={`${styles.seatWrap} ${styles.humanSeat}`}
               style={{ left: pos.left, top: pos.top }}
             >
               <Seat

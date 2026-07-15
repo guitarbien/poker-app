@@ -4,7 +4,7 @@
   align-items: center;
   gap: 4px;
   width: 110px;
-  position: relative;
+  position: relative; /* containing block for .committed chip */
 }
 
 .seat.folded {
@@ -88,4 +88,40 @@
   padding: 1px 6px;
   border-radius: 10px;
   white-space: nowrap;
+}
+
+/* ── Mobile portrait (max 767px) ───────────────────────── */
+@media (max-width: 767px) {
+  .seat {
+    width: auto;
+    min-width: 0;
+    gap: 2px;
+  }
+
+  /* ponytail: uniform small size for all seats on mobile; add compact prop if human needs larger */
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 11px;
+  }
+
+  .info {
+    gap: 2px;
+    flex-wrap: nowrap;
+  }
+
+  .stack {
+    font-size: 10px;
+  }
+
+  .position,
+  .dealer,
+  .allIn {
+    font-size: 9px;
+    padding: 1px 3px;
+  }
+
+  .cards {
+    gap: 2px;
+  }
 }
