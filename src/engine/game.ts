@@ -47,8 +47,10 @@ export type Action =
 export type EngineErrorCode = 'ILLEGAL_ACTION' | 'BELOW_MIN_RAISE' | 'BAD_AMOUNT' | 'BAD_TIMING';
 
 export class EngineError extends Error {
-  constructor(public code: EngineErrorCode, message: string) {
+  code: EngineErrorCode;
+  constructor(code: EngineErrorCode, message: string) {
     super(`[${code}] ${message}`);
+    this.code = code;
   }
 }
 
@@ -85,6 +87,9 @@ export function newHand(config: NewHandConfig): GameState {
   if (config.players.length < 2 || config.players.length > 6) {
     throw new EngineError('BAD_AMOUNT', '玩家數必須是 2–6');
   }
+  if (config.players.some((p) => p.stack <= 0)) {
+    throw new EngineError('BAD_AMOUNT', '玩家籌碼必須為正');
+  }
   const players: Player[] = config.players.map((p) => ({
     seat: p.seat,
     stack: p.stack,
@@ -111,23 +116,29 @@ export function newHand(config: NewHandConfig): GameState {
     p.hole = [deck.shift()!, deck.shift()!];
   }
 
-  // preflop 行動起點：HU 由 button；否則 BB 下一位
-  const firstToAct = headsUp ? button : seatAfter(players, bbSeat, 1);
-
-  return {
+  const state: GameState = {
     players,
     button,
     street: 'preflop',
     board: [],
     deck,
     pots: [],
-    toAct: firstToAct,
+    toAct: null,
     currentBet: blinds.bb,
     minRaise: blinds.bb,
     blinds,
     handNumber,
     result: null,
   };
+
+  // 統一路徑：findNextToAct 自動跳過盲注 all-in 玩家；HU 時 BB 下一位即 button，3+ 人時即 UTG
+  const firstToAct = findNextToAct(state, bbSeat);
+  if (firstToAct === null) {
+    runOutAndSettle(state); // 雙盲皆 all-in，直接攤牌
+  } else {
+    state.toAct = firstToAct;
+  }
+  return state;
 }
 
 // 從 button 順時針依序：BTN, SB, BB, UTG, MP, CO（後位優先補滿）
@@ -346,7 +357,6 @@ export function applyAction(state: GameState, action: Action): GameState {
   const s = clone(state);
   const p = s.players.find((x) => x.seat === s.toAct)!;
   const la = legalActions(s);
-  const owe = s.currentBet - p.committed;
 
   switch (action.type) {
     case 'fold': {
