@@ -14,6 +14,7 @@ export default defineConfig({
         'src/review/**/*.ts',
         'src/stats/**/*.ts',
         'src/features/table/session.ts',
+        'src/features/home/settings.ts',
       ],
       exclude: ['**/*.test.ts'],
       thresholds: { lines: 85, functions: 85, branches: 85, statements: 85 },

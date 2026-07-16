@@ -1,10 +1,14 @@
+import { useState, useEffect } from 'react';
 import type { Action } from '../../engine/game';
 import { legalActions, positionOf } from '../../engine/game';
 import type { TableState } from './useTable';
 import { CardView } from './CardView';
 import { Seat } from './Seat';
 import { ActionBar } from './ActionBar';
+import { AssistPanel } from './AssistPanel';
 import { handName } from './handNames';
+import { BUY_IN_BB } from './session';
+import { loadSettings, saveSettings } from '../home/settings';
 import styles from './TableScreen.module.css';
 
 // Seat positions around the oval (clockwise from bottom, seat 0 = human)
@@ -32,12 +36,50 @@ const STREET_NAMES: Record<string, string> = {
   river: '河牌',
 };
 
+const AUTO_NEXT_SECS = 5;
+
 export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExit }: Props) {
   const { game, humanBusted } = state;
+
+  // 練習輔助開關，持久化至 settings
+  const [assistEnabled, setAssistEnabled] = useState(() => loadSettings().assistEnabled);
+
+  function handleToggleAssist() {
+    setAssistEnabled((prev) => {
+      const next = !prev;
+      const s = loadSettings();
+      saveSettings({ ...s, assistEnabled: next });
+      return next;
+    });
+  }
+
+  // 自動下一手倒數（handOver 且未破產時才啟動）
+  const isHandOver = game?.street === 'handOver';
+  const [countdown, setCountdown] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isHandOver || humanBusted) {
+      setCountdown(null);
+      return;
+    }
+    setCountdown(AUTO_NEXT_SECS);
+    const iv = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(iv);
+          onNextHand();
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHandOver, humanBusted, game?.handNumber]);
+
   if (!game) return null;
 
   const pot = game.players.reduce((s, p) => s + p.totalCommitted, 0);
-  const isHandOver = game.street === 'handOver';
 
   // Show hole cards for non-folded players when it was a showdown
   const isShowdown = game.result?.some((r) => r.winners.some((w) => w.handRank !== null)) ?? false;
@@ -45,11 +87,19 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
   const la = isHandOver ? null : legalActions(game);
   const hasActions = la !== null && (la.fold || la.check || la.call !== null || la.raise !== null);
 
+  // 補碼按鈕：handOver、非破產、0 < stack < 買入
+  const human = game.players.find((p) => !p.isCpu);
+  const buyIn = BUY_IN_BB * game.blinds.bb;
+  const showRebuy = isHandOver && !humanBusted && human && human.stack > 0 && human.stack < buyIn;
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
         <span>手牌 #{game.handNumber}</span>
         <span>盲注 {game.blinds.sb}/{game.blinds.bb}</span>
+        <button className={styles.exitBtn} onClick={onExit} data-testid="exit-btn">
+          離開
+        </button>
       </div>
 
       <div className={styles.arena}>
@@ -122,7 +172,14 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
             )}
             <div className={styles.resultActions}>
               {!humanBusted && (
-                <button onClick={onNextHand}>下一手</button>
+                <button onClick={() => { setCountdown(null); onNextHand(); }} data-testid="next-hand-btn">
+                  下一手{countdown !== null ? `（${countdown}）` : ''}
+                </button>
+              )}
+              {showRebuy && (
+                <button onClick={onRebuyAndNext} data-testid="rebuy-btn">
+                  補碼
+                </button>
               )}
               {humanBusted && (
                 <>
@@ -133,6 +190,8 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
             </div>
           </div>
         )}
+
+        <AssistPanel game={game} enabled={assistEnabled} onToggle={handleToggleAssist} />
 
         {hasActions && (
           <ActionBar game={game} legalActions={la} onAction={onAction} />
