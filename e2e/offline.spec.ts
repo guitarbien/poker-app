@@ -6,14 +6,14 @@ test('離線後仍可開桌打牌', async ({ page, context }) => {
   await page.waitForLoadState('load');
 
   // 等 SW ready（vite-plugin-pwa 預設 generateSW + clientsClaim:true）
-  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
 
   // 若 controller 還是 null（首次安裝，SW 尚未 claim），reload 一次
   const controlled = await page.evaluate(() => !!navigator.serviceWorker.controller);
   if (!controlled) {
     await page.reload();
     await page.waitForLoadState('load');
-    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
   }
 
   // 確認 SW 已接管

@@ -21,7 +21,7 @@ export interface TableState {
   handLog: HandLog | null;
 }
 
-// deck は呼び出し側が shuffle 済みのものを渡す（reducer 純化）
+// deck 由呼叫端傳入已洗牌的結果（reducer 純化）
 type TableEvent =
   | { type: 'start'; config: SessionConfig; deck: Card[] }
   | { type: 'humanAction'; action: Action }
