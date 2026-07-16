@@ -1,5 +1,5 @@
 import type { Difficulty } from '../../engine/game';
-import type { KVStore } from '../../storage/storage';
+import { load, save, type KVStore } from '../../storage/storage';
 
 export interface Settings {
   blinds: { sb: number; bb: number };
@@ -15,33 +15,22 @@ export const DEFAULT_SETTINGS: Settings = {
   assistEnabled: true,
 };
 
-const SETTINGS_KEY = 'holdem:settings';
+const SETTINGS_KEY = 'holdem.settings';
+const SETTINGS_VERSION = 1;
 
-function defaultStore(): KVStore {
-  return window.localStorage;
+function normalize(s: Settings): Settings {
+  const cpuCount = Math.min(5, Math.max(1, Math.round(s.cpuCount)));
+  const diffs = Array.isArray(s.difficulties) ? [...s.difficulties] : [];
+  while (diffs.length < cpuCount) diffs.push('easy');
+  return { ...s, cpuCount, difficulties: diffs.slice(0, cpuCount) };
 }
 
-export function loadSettings(store: KVStore = defaultStore()): Settings {
-  try {
-    const raw = store.getItem(SETTINGS_KEY);
-    if (!raw) return { ...DEFAULT_SETTINGS, difficulties: [...DEFAULT_SETTINGS.difficulties] };
-    const data = JSON.parse(raw) as Partial<Settings>;
-    const merged: Settings = { ...DEFAULT_SETTINGS, ...data };
-    // normalize difficulties length to match cpuCount
-    const count = merged.cpuCount;
-    const diffs = Array.isArray(merged.difficulties) ? [...merged.difficulties] : [];
-    while (diffs.length < count) diffs.push('easy');
-    merged.difficulties = diffs.slice(0, count);
-    return merged;
-  } catch {
-    return { ...DEFAULT_SETTINGS, difficulties: [...DEFAULT_SETTINGS.difficulties] };
-  }
+export function loadSettings(store?: KVStore): Settings {
+  const raw = load(SETTINGS_KEY, SETTINGS_VERSION, DEFAULT_SETTINGS, store);
+  const merged: Settings = { ...DEFAULT_SETTINGS, ...raw };
+  return normalize(merged);
 }
 
-export function saveSettings(s: Settings, store: KVStore = defaultStore()): void {
-  try {
-    store.setItem(SETTINGS_KEY, JSON.stringify(s));
-  } catch {
-    // ignore write failures
-  }
+export function saveSettings(s: Settings, store?: KVStore): void {
+  save(SETTINGS_KEY, SETTINGS_VERSION, s, store);
 }
