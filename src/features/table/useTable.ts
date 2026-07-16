@@ -10,6 +10,8 @@ import {
   type SessionConfig,
 } from './session';
 import { buildHandRecord, appendHand, type HandLog } from '../../review/recorder';
+import { recordHand, EMPTY_STATS, STATS_KEY, STATS_VERSION } from '../../stats/stats';
+import { load, save } from '../../storage/storage';
 
 const rng: Rng = Math.random;
 
@@ -137,7 +139,10 @@ export function useTable(): TableApi {
     persistedLogRef.current = state.handLog;
     const record = buildHandRecord(state.handLog, game, Date.now());
     appendHand(record);
-    // Task 5: recordHand(record)
+    // Task 5: load stats → recordHand → save
+    const stats = load(STATS_KEY, STATS_VERSION, EMPTY_STATS);
+    const updated = recordHand(stats, record);
+    save(STATS_KEY, STATS_VERSION, updated);
   }, [game, state.handLog]);
 
   return {
