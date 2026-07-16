@@ -25,6 +25,11 @@ describe('describeHand', () => {
     expect(describeHand(score)).toBe('順子：9 高');
   });
 
+  it('順子：5 高（輪子 A2345）', () => {
+    const score = evaluate5(cards('Ah', '2h', '3d', '4s', '5c'));
+    expect(describeHand(score)).toBe('順子：5 高');
+  });
+
   it('同花', () => {
     const score = evaluate5(cards('2h', '5h', '7h', 'Jh', 'Kh'));
     expect(describeHand(score)).toBe('同花：K 高');

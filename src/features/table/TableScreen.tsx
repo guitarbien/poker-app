@@ -45,12 +45,9 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
   const [assistEnabled, setAssistEnabled] = useState(() => loadSettings().assistEnabled);
 
   function handleToggleAssist() {
-    setAssistEnabled((prev) => {
-      const next = !prev;
-      const s = loadSettings();
-      saveSettings({ ...s, assistEnabled: next });
-      return next;
-    });
+    const next = !assistEnabled;
+    saveSettings({ ...loadSettings(), assistEnabled: next });
+    setAssistEnabled(next);
   }
 
   // 自動下一手倒數（handOver 且未破產時才啟動）
