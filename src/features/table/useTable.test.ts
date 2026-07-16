@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createDeck } from '../../engine/deck';
 import { reducer } from './useTable';
 
-const CONFIG = { cpuCount: 1, cpuDifficulty: 'easy' as const, blinds: { sb: 1, bb: 2 } };
+const CONFIG = { cpuCount: 1, difficulties: ['easy'] as import('../../engine/game').Difficulty[], blinds: { sb: 1, bb: 2 } };
 
 describe('reducer 純函式 / StrictMode 防重複記錄', () => {
   it('同一 start event 呼叫 reducer 兩次，結果相等且 entries 無重複', () => {

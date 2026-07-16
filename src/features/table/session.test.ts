@@ -1,11 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { createDeck } from '../../engine/deck';
 import { newHand, applyAction } from '../../engine/game';
+import type { Difficulty } from '../../engine/game';
 import {
   BUY_IN_BB, initialHandConfig, settleBetweenHands, nextHandConfig, humanRebuy,
 } from './session';
 
-const CONFIG = { cpuCount: 5, cpuDifficulty: 'easy' as const, blinds: { sb: 1, bb: 2 } };
+const CONFIG = {
+  cpuCount: 5,
+  difficulties: ['easy', 'easy', 'easy', 'easy', 'easy'] as Difficulty[],
+  blinds: { sb: 1, bb: 2 },
+};
 
 function playToHandOver() {
   let s = newHand(initialHandConfig(CONFIG, createDeck()));
@@ -20,6 +25,16 @@ describe('initialHandConfig', () => {
     expect(c.players[0]).toMatchObject({ seat: 0, stack: 200, isCpu: false });
     expect(c.players[1]).toMatchObject({ seat: 1, stack: 200, isCpu: true, difficulty: 'easy' });
     expect(c.handNumber).toBe(1);
+  });
+
+  it('per-CPU 難度：各 CPU 吃到各自的 difficulties[i]', () => {
+    const diffs: Difficulty[] = ['easy', 'normal', 'hard', 'easy', 'normal'];
+    const c = initialHandConfig({ cpuCount: 5, difficulties: diffs, blinds: { sb: 1, bb: 2 } }, createDeck());
+    expect(c.players[1].difficulty).toBe('easy');
+    expect(c.players[2].difficulty).toBe('normal');
+    expect(c.players[3].difficulty).toBe('hard');
+    expect(c.players[4].difficulty).toBe('easy');
+    expect(c.players[5].difficulty).toBe('normal');
   });
 });
 

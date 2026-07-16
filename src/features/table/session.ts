@@ -6,7 +6,7 @@ export const BUY_IN_BB = 100;
 
 export interface SessionConfig {
   cpuCount: number;
-  cpuDifficulty: Difficulty;
+  difficulties: Difficulty[];  // 長度 = cpuCount，per-CPU 難度
   blinds: { sb: number; bb: number };
 }
 
@@ -17,7 +17,7 @@ export function initialHandConfig(config: SessionConfig, deck: Card[]): NewHandC
       seat,
       stack: buyIn,
       isCpu: seat !== 0,
-      ...(seat !== 0 ? { difficulty: config.cpuDifficulty } : {}),
+      ...(seat !== 0 ? { difficulty: config.difficulties[seat - 1] ?? 'easy' } : {}),
     })),
     button: 0,
     blinds: config.blinds,

@@ -6,27 +6,106 @@
   min-height: 100vh;
   background: #0f1923;
   color: #e8f4fd;
-  gap: 32px;
+  gap: 24px;
+  padding: 24px 16px;
+  box-sizing: border-box;
 }
 
 .title {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 700;
   color: #f5d85a;
   letter-spacing: -1px;
   margin: 0;
 }
 
+@media (max-width: 480px) {
+  .title { font-size: 28px; }
+}
+
+/* ── Settings form ── */
+.form {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #162433;
+  border-radius: 12px;
+  padding: 20px 16px;
+  box-sizing: border-box;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.label {
+  min-width: 72px;
+  font-size: 13px;
+  color: #a0b4c4;
+  flex-shrink: 0;
+}
+
+.btnGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.optBtn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #2e4a60;
+  background: #1e3347;
+  color: #c0d8e8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.optBtn:hover {
+  background: #274863;
+}
+
+.optBtn.active {
+  background: #1a5c38;
+  border-color: #6b4c1a;
+  color: #f5d85a;
+}
+
+.optBtn.small {
+  padding: 4px 9px;
+  font-size: 12px;
+}
+
+.diffSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #1e3347;
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.cpuRow .label {
+  min-width: 48px;
+  font-size: 12px;
+}
+
+/* ── Start button ── */
 .startBtn {
   padding: 14px 48px;
   border-radius: 8px;
-  border: none;
+  border: 2px solid #6b4c1a;
   font-size: 20px;
   font-weight: 700;
   cursor: pointer;
   background: #1a5c38;
   color: #f5d85a;
-  border: 2px solid #6b4c1a;
   transition: background 0.15s;
 }
 
