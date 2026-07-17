@@ -1,0 +1,48 @@
+import { test, expect } from '@playwright/test';
+
+test('檢討流程：打一手 → 歷史 → 回放 → 儀表板', async ({ page }) => {
+  // 清 localStorage 保證測試隔離
+  await page.goto('/?fastCpu=1');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+
+  // 開桌
+  await page.getByRole('button', { name: '開始牌局' }).click();
+  await expect(page.getByTestId('seat')).toHaveCount(6);
+
+  // 等輪到人類 → 棄牌
+  await page.getByRole('button', { name: '棄牌' }).click({ timeout: 30_000 });
+
+  // 等 handOver（「下一手」出現代表手牌已寫入 localStorage）
+  await expect(page.getByTestId('next-hand-btn')).toBeVisible({ timeout: 45_000 });
+
+  // 離開牌桌
+  await page.getByTestId('exit-btn').click();
+
+  // HomeScreen：進「檢討」
+  await page.getByRole('button', { name: '檢討' }).click();
+
+  // 歷史分頁：應有 1 列
+  const historyRows = page.locator('text=/第 \\d+ 手/');
+  await expect(historyRows).toHaveCount(1);
+
+  // 點入回放
+  await historyRows.click();
+
+  // 初始：手牌開始
+  await expect(page.getByText('手牌開始')).toBeVisible();
+
+  // 點「下一步」→ 動作描述更新
+  await page.getByRole('button', { name: '下一步' }).click();
+  await expect(page.getByText('手牌開始')).toBeHidden();
+
+  // 返回歷史列表
+  await page.getByRole('button', { name: '← 返回' }).click();
+
+  // 切換至儀表板
+  await page.getByTestId('tab-dashboard').click();
+
+  // 戰績手數 ≥ 1
+  const handsText = await page.getByTestId('stat-hands').textContent();
+  expect(Number(handsText)).toBeGreaterThanOrEqual(1);
+});
