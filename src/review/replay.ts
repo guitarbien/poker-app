@@ -6,7 +6,7 @@ import type { HandRecord } from './recorder';
 // 由 HandRecord 重建可重放的 riggedDeck：
 // 發牌順序固定（button 下一位起每人 2 張），board 接續其後，其餘牌任意序補滿 52 張
 export function replayDeck(record: HandRecord): Card[] {
-  const players = record.players;
+  const players = [...record.players].sort((a, b) => a.seat - b.seat);
   const buttonIdx = players.findIndex((p) => p.seat === record.button);
   const holes: Card[] = [];
   for (let n = 0; n < players.length; n++) {
@@ -21,9 +21,10 @@ export function replayDeck(record: HandRecord): Card[] {
 
 // states[i] = 第 i 個動作「執行前」的 GameState；states[actions.length] = 終局
 export function replayStates(record: HandRecord): GameState[] {
+  const sortedPlayers = [...record.players].sort((a, b) => a.seat - b.seat);
   const states: GameState[] = [
     newHand({
-      players: record.players.map((p) => ({ seat: p.seat, stack: p.stack, isCpu: p.isCpu })),
+      players: sortedPlayers.map((p) => ({ seat: p.seat, stack: p.stack, isCpu: p.isCpu })),
       button: record.button,
       blinds: record.blinds,
       handNumber: record.handNumber,

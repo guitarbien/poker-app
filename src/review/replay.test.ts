@@ -110,6 +110,23 @@ const foldActions = [
   { type: 'fold' as const },            // seat1 BB → handOver
 ];
 
+// ── 案例 C：HU preflop all-in run-out ────────────────────────────
+
+const allinRunOutSpec: RigSpec = {
+  seats: [
+    { seat: 0, stack: 100, isCpu: false, hole: c2('As', 'Ks') },
+    { seat: 1, stack: 100, isCpu: true, hole: c2('2h', '3d') },
+  ],
+  button: 1,
+  board: cards('Ah', '7c', '2d', 'Ts', '3h'),
+};
+
+// HU：BTN(1) raise all-in → SB(0) call → 引擎自動 run-out board
+const allinRunOutActions = [
+  { type: 'raise' as const, to: 100 },  // seat1 BTN raise all-in
+  { type: 'call' as const },            // seat0 SB call all-in
+];
+
 describe('replayDeck', () => {
   it('deck 為 52 張不重複，hole 依發牌序展平、board 接續其後', () => {
     const { record } = playHand(showdownSpec, showdownActions);
@@ -182,5 +199,33 @@ describe('replayStates（棄牌提前結束案例）', () => {
     for (const p of final.players) {
       expect(last.players.find((x) => x.seat === p.seat)!.stack).toBe(p.stack);
     }
+  });
+});
+
+describe('replayStates（all-in run-out 案例）', () => {
+  const { record, final } = playHand(allinRunOutSpec, allinRunOutActions);
+  const states = replayStates(record);
+
+  it('states[0] 各家 hole 與 record 相同', () => {
+    for (const p of record.players) {
+      expect(states[0].players.find((x) => x.seat === p.seat)!.hole).toEqual(p.hole);
+    }
+  });
+
+  it('終局 board 與 record.board 相同', () => {
+    const last = states[states.length - 1];
+    expect(last.street).toBe('handOver');
+    expect(last.board).toEqual(record.board);
+  });
+
+  it('終局 stacks 與原終局相同', () => {
+    const last = states[states.length - 1];
+    for (const p of final.players) {
+      expect(last.players.find((x) => x.seat === p.seat)!.stack).toBe(p.stack);
+    }
+  });
+
+  it('states 長度 = actions.length + 1', () => {
+    expect(states).toHaveLength(record.actions.length + 1);
   });
 });
