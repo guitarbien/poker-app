@@ -321,6 +321,52 @@ describe('錨點⑧ 強勢成牌跟注 AhAs on KQJ87 → 不標記，postflopCal
   });
 });
 
+// ── ⑨.HU short-stack call for less：required 依有效賭注截斷計算 ──
+// HU：human=BB(seat0) stack=4（貼盲 2 後剩 2），CPU=BTN(seat1) stack=200
+// river CPU 下注 100 → human 只能 all-in call 2
+// 有效賠率：pay=2, level=4, pot=min(102,4)+min(2,4)=4+2=6
+// required = 2/(6+2) = 0.25；A2o ≈ 0.34 > 0.25 → 不應被標記
+describe('錨點⑨ 短籌碼 all-in call for less → required = 0.25，A2o 不標記', () => {
+  const spec: RigSpec = {
+    seats: [
+      { seat: 0, stack: 4,   isCpu: false, hole: c2('Ah', '2d') }, // human BB
+      { seat: 1, stack: 200, isCpu: true,  hole: c2('Td', '9s') }, // CPU BTN/SB
+    ],
+    button: 1,
+    board: cards('Kc', 'Qd', 'Js', '8h', '7c'),
+  };
+  const record = playHand(spec, [
+    { type: 'call' },           // seat1 SB 補到 2
+    { type: 'check' },          // seat0 BB
+    { type: 'check' }, { type: 'check' }, // flop
+    { type: 'check' }, { type: 'check' }, // turn
+    { type: 'check' },           // river seat0
+    { type: 'raise', to: 100 }, // river seat1 bet 100
+    { type: 'call' },            // seat0 human all-in call for 2
+  ]);
+  const result = gradeHand(record, mulberry32(42));
+
+  it('requiredEquity ≈ 0.25（2/8）', () => {
+    const f = result.flags.find((x) => x.kind === 'call-without-odds');
+    // A2o estimated ≈ 0.34 > 0.25 → no flag; if flag exists required must be ≤ 0.25+buffer
+    if (f) {
+      expect(f.detail!.requiredEquity).toBeCloseTo(0.25, 2);
+    } else {
+      // 正確路徑：不標記
+      expect(result.flags.filter((x) => x.kind === 'call-without-odds')).toHaveLength(0);
+    }
+  });
+
+  it('用截斷賠率 required=0.25，A2o（estimated≈0.34）不被標記', () => {
+    const callFlags = result.flags.filter((x) => x.kind === 'call-without-odds');
+    expect(callFlags).toHaveLength(0);
+  });
+
+  it('postflopCall opportunity = 1', () => {
+    expect(result.opportunities.postflopCall).toBe(1);
+  });
+});
+
 // ── ⑨ accumulate：preflop-loose 與 preflop-tight 共用 rfi 分母 ───
 describe('錨點⑨ accumulate 分子分母，loose/tight 共用 rfi opportunities', () => {
   // Result A: preflop-loose（72o raise at UTG，rfi=1）

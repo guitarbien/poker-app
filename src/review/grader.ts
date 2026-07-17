@@ -67,11 +67,15 @@ export function gradeHand(record: HandRecord, rng: Rng): GradeResult {
     postflopCall++;
     const p = state.players.find((x) => x.seat === human.seat)!;
     const owe = state.currentBet - p.committed;
-    const pot = state.players.reduce((sum, x) => sum + x.totalCommitted, 0);
+    // ponytail: 短籌碼 all-in call for less：截斷 owe 至實際可付金額，
+    // 並以 level = totalCommitted+pay 截斷對手有效貢獻，避免高估 required equity
+    const pay = Math.min(owe, p.stack);
+    const level = p.totalCommitted + pay;
+    const pot = state.players.reduce((s, x) => s + Math.min(x.totalCommitted, level), 0);
     const opponents = state.players.filter(
       (x) => x.seat !== human.seat && x.state !== 'folded',
     ).length;
-    const required = owe / (pot + owe);
+    const required = pay / (pot + pay);
     const estimated = equity(human.hole, state.board, opponents, DEFAULT_ITERATIONS, rng);
     if (estimated < required - ODDS_BUFFER) {
       flags.push({
