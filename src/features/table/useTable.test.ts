@@ -25,7 +25,8 @@ describe('reducer 純函式 / StrictMode 防重複記錄', () => {
     const init = { game: null, humanBusted: false, handLog: null };
     const started = reducer(init, { type: 'start', config: CONFIG, deck: [...deck] });
 
-    if (!started.game || started.game.street === 'handOver') return;
+    expect(started.game).not.toBeNull();
+    expect(started.game?.street).not.toBe('handOver');
 
     const actionEv = { type: 'cpuAction' as const, action: { type: 'fold' as const } };
 
@@ -44,7 +45,8 @@ describe('reducer 純函式 / StrictMode 防重複記錄', () => {
     const init = { game: null, humanBusted: false, handLog: null };
     const started = reducer(init, { type: 'start', config: CONFIG, deck: [...deck] });
 
-    if (!started.game || started.game.street === 'handOver') return;
+    expect(started.game).not.toBeNull();
+    expect(started.game?.street).not.toBe('handOver');
     const originalEntries = started.handLog?.entries;
 
     // 呼叫 reducer 後原陣列不應被 push 修改

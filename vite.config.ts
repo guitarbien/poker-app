@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: { globPatterns: ['**/*.{js,css,html,svg}'] },
       manifest: {
         name: '德州撲克練習',
         short_name: '撲克練習',

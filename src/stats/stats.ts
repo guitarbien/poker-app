@@ -67,7 +67,7 @@ export function recordHand(prev: Stats, record: HandRecord): Stats {
 
   // showdownsWon：showdown 中 seat 0 出現在 winners 中
   if (hadShowdown) {
-    const humanWon = record.potResults.some((result) => result.winners.some((w) => w.seat === humanSeat && w.handRank !== null));
+    const humanWon = record.potResults.some((result) => result.winners.some((w) => w.seat === humanSeat));
     if (humanWon) {
       showdownsWon += 1;
     }

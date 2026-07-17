@@ -64,8 +64,7 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
           clearInterval(iv);
-          onNextHand();
-          return null;
+          return 0;
         }
         return prev - 1;
       });
@@ -73,6 +72,13 @@ export function TableScreen({ state, onAction, onNextHand, onRebuyAndNext, onExi
     return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHandOver, humanBusted, game?.handNumber]);
+
+  // 倒數歸零時觸發下一手；onNextHand 對非 handOver 狀態是 no-op guard
+  useEffect(() => {
+    if (countdown !== 0) return;
+    onNextHand();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
 
   if (!game) return null;
 

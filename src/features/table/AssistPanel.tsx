@@ -17,13 +17,14 @@ export function AssistPanel({ game, enabled, onToggle }: Props) {
   const human = game.players.find((p) => !p.isCpu);
   const activeOpponents = game.players.filter((p) => p.isCpu && p.state !== 'folded').length;
 
-  // 只在街道改變或對手棄牌時重算；下注動作不觸發
+  // 只在街道改變或對手棄牌時重算；下注動作不觸發；disabled 時跳過運算
   // ponytail: useMemo deps 對應 brief spec §7
   const equityVal = useMemo(() => {
+    if (!enabled) return null;
     if (!human?.hole || activeOpponents === 0 || game.street === 'handOver') return null;
     return equity(human.hole, game.board, activeOpponents, 2000, Math.random);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game.handNumber, game.street, activeOpponents]);
+  }, [enabled, game.handNumber, game.street, activeOpponents]);
 
   // 底池賠率：輪到玩家且 owe > 0
   const potOdds = useMemo(() => {
