@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { loadHands } from '../../review/recorder';
 import type { HandRecord } from '../../review/recorder';
 import { CardView } from '../table/CardView';
+import { DashboardScreen } from './DashboardScreen';
 import styles from './HistoryScreen.module.css';
 
 interface Props {
@@ -18,15 +19,28 @@ function formatTime(ts: number): string {
 export function HistoryScreen({ onBack, onReplay }: Props) {
   // 反序：最新在前
   const hands = useMemo(() => loadHands().slice().reverse(), []);
+  const [tab, setTab] = useState<'history' | 'dashboard'>('history');
 
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
         <button className={styles.backBtn} onClick={onBack}>← 返回</button>
-        <h1 className={styles.title}>手牌歷史</h1>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tabBtn}${tab === 'history' ? ' ' + styles.tabActive : ''}`}
+            onClick={() => setTab('history')}
+          >手牌歷史</button>
+          <button
+            className={`${styles.tabBtn}${tab === 'dashboard' ? ' ' + styles.tabActive : ''}`}
+            onClick={() => setTab('dashboard')}
+            data-testid="tab-dashboard"
+          >儀表板</button>
+        </div>
       </div>
 
-      <div className={styles.listWrap}>
+      {tab === 'dashboard' && <DashboardScreen />}
+
+      {tab === 'history' && <div className={styles.listWrap}>
         {hands.length === 0 ? (
           <div className={styles.empty}>
             <p>尚無歷史記錄</p>
@@ -67,7 +81,7 @@ export function HistoryScreen({ onBack, onReplay }: Props) {
             );
           })
         )}
-      </div>
+      </div>}
     </div>
   );
 }
