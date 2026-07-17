@@ -37,7 +37,9 @@ interface Props {
 
 export function ReplayScreen({ record, onBack }: Props) {
   const states = useMemo(() => replayStates(record), [record]);
-  const [stepIdx, setStepIdx] = useState(0);
+  const [stepIdx, setStepIdx] = useState(() =>
+    record.flags.length > 0 ? record.flags[0].actionIndex + 1 : 0,
+  );
   const [forceShow, setForceShow] = useState(false);
 
   const maxStep = record.actions.length;
@@ -55,11 +57,13 @@ export function ReplayScreen({ record, onBack }: Props) {
 
   function shouldReveal(seat: number): boolean {
     if (forceShow) return true;
+    // human 永遠看到自己的底牌；隱藏規則只限未攤牌的 CPU 底牌
+    if (!record.players.find((p) => p.seat === seat)?.isCpu) return true;
     if (hasShowdown) {
       const p = finalState.players.find((x) => x.seat === seat);
       return p !== undefined && p.state !== 'folded';
     }
-    return !record.players.find((p) => p.seat === seat)?.isCpu;
+    return false;
   }
 
   // 各街道第一個動作的 step (1-based index into actions → stepIdx)

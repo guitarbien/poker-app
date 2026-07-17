@@ -26,13 +26,12 @@ test('檢討流程：打一手 → 歷史 → 回放 → 儀表板', async ({ pa
   const historyRows = page.locator('text=/第 \\d+ 手/');
   await expect(historyRows).toHaveCount(1);
 
-  // 點入回放
+  // 點入回放 → 確認回放畫面載入
+  // 有標記的手牌從標記步開始（stepIdx > 0），無標記從步驟 0 開始
   await historyRows.click();
+  await expect(page.getByRole('button', { name: '← 返回' })).toBeVisible();
 
-  // 初始：手牌開始
-  await expect(page.getByText('手牌開始')).toBeVisible();
-
-  // 點「下一步」→ 動作描述更新
+  // 點「下一步」→ 步驟前進（手牌開始文字消失或保持隱藏）
   await page.getByRole('button', { name: '下一步' }).click();
   await expect(page.getByText('手牌開始')).toBeHidden();
 
