@@ -9,9 +9,13 @@ import {
   BUY_IN_BB, initialHandConfig, nextHandConfig, settleBetweenHands, humanRebuy,
   type SessionConfig,
 } from './session';
-import { buildHandRecord, appendHand, type HandLog } from '../../review/recorder';
+import { appendHand, type HandLog } from '../../review/recorder';
 import { recordHand, EMPTY_STATS, STATS_KEY, STATS_VERSION } from '../../stats/stats';
 import { load, save } from '../../storage/storage';
+import { finalizeHand } from '../../review/finalize';
+import {
+  accumulate, EMPTY_AGGREGATES, FLAGS_KEY, FLAGS_VERSION,
+} from '../../review/grader';
 
 const rng: Rng = Math.random;
 
@@ -137,12 +141,12 @@ export function useTable(): TableApi {
     if (!state.handLog) return;
     if (persistedLogRef.current === state.handLog) return;
     persistedLogRef.current = state.handLog;
-    const record = buildHandRecord(state.handLog, game, Date.now());
+    const { record, gradeResult } = finalizeHand(state.handLog, game, Date.now(), rng);
     appendHand(record);
-    // Task 5: load stats → recordHand → save
     const stats = load(STATS_KEY, STATS_VERSION, EMPTY_STATS);
-    const updated = recordHand(stats, record);
-    save(STATS_KEY, STATS_VERSION, updated);
+    save(STATS_KEY, STATS_VERSION, recordHand(stats, record));
+    const flags = load(FLAGS_KEY, FLAGS_VERSION, EMPTY_AGGREGATES);
+    save(FLAGS_KEY, FLAGS_VERSION, accumulate(flags, gradeResult));
   }, [game, state.handLog]);
 
   return {
