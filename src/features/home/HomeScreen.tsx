@@ -7,6 +7,7 @@ import styles from './HomeScreen.module.css';
 
 interface Props {
   onStart: (config: SessionConfig) => void;
+  onReview: () => void;
 }
 
 const BLINDS_OPTIONS = [
@@ -18,7 +19,7 @@ const BLINDS_OPTIONS = [
 const DIFFS: Difficulty[] = ['easy', 'normal', 'hard'];
 const DIFF_LABELS: Record<Difficulty, string> = { easy: '簡單', normal: '普通', hard: '困難' };
 
-export function HomeScreen({ onStart }: Props) {
+export function HomeScreen({ onStart, onReview }: Props) {
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
 
   function update(patch: Partial<Settings>) {
@@ -125,9 +126,14 @@ export function HomeScreen({ onStart }: Props) {
         </div>
       </div>
 
-      <button className={styles.startBtn} onClick={handleStart}>
-        開始牌局
-      </button>
+      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <button className={styles.startBtn} onClick={handleStart}>
+          開始牌局
+        </button>
+        <button className={styles.startBtn} onClick={onReview} style={{ background: '#1e3347', borderColor: '#4a6fa5', color: '#a0c8e8' }}>
+          檢討
+        </button>
+      </div>
     </div>
   );
 }
