@@ -19,7 +19,6 @@ function isRfiSpot(
   state: GameState,
   humanSeat: number,
 ): boolean {
-  if (state.street !== 'preflop') return false;
   if (positionOf(state, humanSeat) === 'BB') return false;
   for (let i = 0; i < actionIndex; i++) {
     const e = record.actions[i];
@@ -56,6 +55,8 @@ export function gradeHand(record: HandRecord, rng: Rng): GradeResult {
         flags.push({ actionIndex, kind: 'preflop-loose' });
       } else if (entry.action.type === 'fold' && inRange) {
         flags.push({ actionIndex, kind: 'preflop-tight' });
+      } else if (entry.action.type === 'call' && !inRange) {
+        flags.push({ actionIndex, kind: 'preflop-loose' });
       }
       // call (limp) in range → standard（不標記）; fold out of range → standard
       return;

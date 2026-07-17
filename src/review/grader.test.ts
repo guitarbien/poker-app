@@ -151,6 +151,26 @@ describe('錨點③ UTG AJo open → 無 flag，rfi opportunity+1', () => {
   });
 });
 
+// ── ③.5 UTG 72o limp → preflop-loose，rfi opportunity+1 ────────────
+describe('錨點③.5 UTG 72o limp(call) → preflop-loose，rfi opportunity+1', () => {
+  // 72o 不在 UTG range，limp（call）→ preflop-loose
+  const record = playHand(sixMax(2, c2('7s', '2d')), [
+    { type: 'call' }, // seat2 human UTG limps
+    ...FOLD5,         // seat3..seat1 all fold
+  ]);
+  const result = gradeHand(record, mulberry32(42));
+
+  it('產生一個 preflop-loose flag', () => {
+    expect(result.flags).toHaveLength(1);
+    expect(result.flags[0].kind).toBe('preflop-loose');
+    expect(result.flags[0].actionIndex).toBe(0);
+  });
+
+  it('rfi opportunity = 1', () => {
+    expect(result.opportunities.rfi).toBe(1);
+  });
+});
+
 // ── ④ human 在 BB 不評分、不計 opportunity ───────────────────────
 describe('錨點④ human 在 BB → 不評分、不計 opportunity', () => {
   // human = seat1(BB in 6-max with button=5)
