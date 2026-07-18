@@ -19,6 +19,9 @@ export function EquityGuessQuiz({ question, onAnswer, phase }: Props) {
   const [result, setResult] = useState<{ actual: number; correct: boolean; guess: number } | null>(null);
   const p = question.payload;
 
+  const guessNum = Number(guess);
+  const outOfRange = guess !== '' && Number.isFinite(guessNum) && (guessNum < 0 || guessNum > 100);
+
   function handleSubmit() {
     if (phase !== 'answering' || result !== null) return;
     const g = Number(guess);
@@ -71,28 +74,31 @@ export function EquityGuessQuiz({ question, onAnswer, phase }: Props) {
       </div>
 
       {phase === 'answering' ? (
-        <div className={styles.equityInput}>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={guess}
-            onChange={(e) => setGuess(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            placeholder="0–100"
-            aria-label="勝率估計（百分比）"
-            data-testid="equity-input"
-          />
-          <span style={{ color: '#a0b4c4' }}>%</span>
-          <button
-            className={styles.submitBtn}
-            onClick={handleSubmit}
-            disabled={guess === '' || !Number.isFinite(Number(guess))}
-            data-testid="equity-submit"
-          >
-            作答
-          </button>
-        </div>
+        <>
+          <div className={styles.equityInput}>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={guess}
+              onChange={(e) => setGuess(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              placeholder="0–100"
+              aria-label="勝率估計（百分比）"
+              data-testid="equity-input"
+            />
+            <span style={{ color: '#a0b4c4' }}>%</span>
+            <button
+              className={styles.submitBtn}
+              onClick={handleSubmit}
+              disabled={guess === '' || !Number.isFinite(guessNum) || outOfRange}
+              data-testid="equity-submit"
+            >
+              作答
+            </button>
+          </div>
+          {outOfRange && <p className={styles.inputHint}>請輸入 0–100</p>}
+        </>
       ) : (
         result && (
           <p className={styles.explain}>

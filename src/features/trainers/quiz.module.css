@@ -169,3 +169,9 @@
   outline: none;
   border-color: #4a6fa5;
 }
+
+.inputHint {
+  font-size: 12px;
+  color: #ef4444;
+  margin: 0;
+}

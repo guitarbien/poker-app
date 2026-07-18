@@ -60,6 +60,8 @@ export function TrainersScreen({ onBack, initialModule }: TrainersScreenProps) {
 
   if (state.view === 'quiz') {
     const { name, mode } = state;
+    // ponytail: 當 initialModule 存在（由儀表板直入），退出直接回 origin screen
+    const handleExit = initialModule ? onBack : () => setState({ view: 'menu' });
     return (
       <QuizShell
         key={`${name}-${mode}`}
@@ -67,7 +69,7 @@ export function TrainersScreen({ onBack, initialModule }: TrainersScreenProps) {
         mode={mode}
         generate={GENERATORS[name]}
         renderBody={(q, onAnswer, phase) => renderQuizBody(name, q, onAnswer, phase)}
-        onExit={() => setState({ view: 'menu' })}
+        onExit={handleExit}
       />
     );
   }

@@ -15,6 +15,7 @@ function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [replayRecord, setReplayRecord] = useState<HandRecord | null>(null);
   const [initialTrainer, setInitialTrainer] = useState<TrainerName | undefined>();
+  const [trainerOrigin, setTrainerOrigin] = useState<'home' | 'review'>('home');
   const table = useTable();
 
   function handleStart(config: SessionConfig) {
@@ -34,6 +35,7 @@ function App() {
 
   function handlePractice(target: TrainerName) {
     setInitialTrainer(target);
+    setTrainerOrigin('review');
     setScreen('trainers');
   }
 
@@ -71,7 +73,10 @@ function App() {
   if (screen === 'trainers') {
     return (
       <TrainersScreen
-        onBack={() => { setInitialTrainer(undefined); setScreen('home'); }}
+        onBack={() => {
+          setInitialTrainer(undefined);
+          setScreen(trainerOrigin === 'review' ? 'review' : 'home');
+        }}
         initialModule={initialTrainer}
       />
     );
@@ -81,7 +86,7 @@ function App() {
     <HomeScreen
       onStart={handleStart}
       onReview={() => setScreen('review')}
-      onTrainers={() => setScreen('trainers')}
+      onTrainers={() => { setTrainerOrigin('home'); setScreen('trainers'); }}
     />
   );
 }
