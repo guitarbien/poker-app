@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { cards } from '../../engine/deck';
-import { evaluate5, evaluate7 } from '../../engine/evaluator';
+import { cards } from './deck';
+import { evaluate5, evaluate7 } from './evaluator';
 import { describeHand } from './handNames';
 
 describe('describeHand', () => {

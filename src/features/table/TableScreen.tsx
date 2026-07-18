@@ -6,7 +6,7 @@ import { CardView } from './CardView';
 import { Seat } from './Seat';
 import { ActionBar } from './ActionBar';
 import { AssistPanel } from './AssistPanel';
-import { handName } from './handNames';
+import { handName } from '../../engine/handNames';
 import { BUY_IN_BB } from './session';
 import { loadSettings, saveSettings } from '../home/settings';
 import styles from './TableScreen.module.css';

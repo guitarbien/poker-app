@@ -4,7 +4,7 @@ import { legalActions } from '../../engine/game';
 import { equity } from '../../engine/equity';
 import { bestHand } from '../../engine/evaluator';
 import { handClassOf } from '../../engine/ranges';
-import { describeHand } from './handNames';
+import { describeHand } from '../../engine/handNames';
 import styles from './AssistPanel.module.css';
 
 interface Props {

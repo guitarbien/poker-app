@@ -1,5 +1,5 @@
-import { decodeScore, HAND_CATEGORY } from '../../engine/evaluator';
-import { RANK_CHARS } from '../../engine/deck';
+import { decodeScore, HAND_CATEGORY } from './evaluator';
+import { RANK_CHARS } from './deck';
 
 export const HAND_NAMES = ['高牌', '一對', '兩對', '三條', '順子', '同花', '葫蘆', '四條', '同花順'] as const;
 
