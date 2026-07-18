@@ -1,0 +1,171 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prompt {
+  font-size: 14px;
+  color: #a0b4c4;
+  margin: 0;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.cardWrap {
+  display: inline-flex;
+}
+
+.cardHighlight {
+  display: inline-flex;
+  outline: 2px solid #f5d85a;
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.optBtn {
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid #2e4a60;
+  background: #1e3347;
+  color: #c0d8e8;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.optBtn:hover:not(:disabled) { background: #274863; border-color: #4a6fa5; }
+.optBtn:disabled { opacity: 0.6; cursor: default; }
+
+.optBtnCorrect {
+  background: #14532d;
+  border-color: #22c55e;
+  color: #86efac;
+  opacity: 1 !important;
+}
+
+.optBtnWrong {
+  background: #450a0a;
+  border-color: #ef4444;
+  color: #fca5a5;
+  opacity: 1 !important;
+}
+
+.explain {
+  font-size: 13px;
+  color: #a0c4da;
+  line-height: 1.6;
+  background: #162433;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0;
+}
+
+.contextCard {
+  background: #162433;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contextRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #e8f4fd;
+}
+
+.contextLabel {
+  color: #6b8fa8;
+  min-width: 80px;
+  font-size: 13px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #1e3347;
+  color: #f5d85a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rangeStr {
+  font-size: 11px;
+  color: #6b8fa8;
+  margin-top: 4px;
+  max-width: 160px;
+  word-break: break-all;
+}
+
+.twoHands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.handGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.handLabel {
+  font-size: 12px;
+  color: #6b8fa8;
+  font-weight: 600;
+}
+
+.submitBtn {
+  padding: 11px 24px;
+  border-radius: 8px;
+  border: 2px solid #6b4c1a;
+  background: #1a5c38;
+  color: #f5d85a;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submitBtn:hover:not(:disabled) { background: #226b44; }
+.submitBtn:disabled { opacity: 0.5; cursor: default; }
+
+.equityInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.equityInput input {
+  width: 90px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2e4a60;
+  background: #162433;
+  color: #e8f4fd;
+  font-size: 16px;
+  text-align: right;
+}
+
+.equityInput input:focus {
+  outline: none;
+  border-color: #4a6fa5;
+}

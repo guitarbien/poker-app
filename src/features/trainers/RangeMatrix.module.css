@@ -1,0 +1,36 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 2px;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 2px;
+  background: #1e2d3e;
+  color: #5a7a96;
+  user-select: none;
+}
+
+.inRange {
+  background: #1a5c38;
+  color: #a0e8b8;
+}
+
+.current {
+  outline: 2px solid #f5d85a;
+  outline-offset: -1px;
+  z-index: 1;
+}
+
+@media (max-width: 400px) {
+  .cell { font-size: 7px; }
+}

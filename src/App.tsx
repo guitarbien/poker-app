@@ -5,9 +5,10 @@ import { HomeScreen } from './features/home/HomeScreen';
 import { TableScreen } from './features/table/TableScreen';
 import { HistoryScreen } from './features/review/HistoryScreen';
 import { ReplayScreen } from './features/review/ReplayScreen';
+import { TrainersScreen } from './features/trainers/TrainersScreen';
 import type { HandRecord } from './review/recorder';
 
-type Screen = 'home' | 'table' | 'review' | 'replay';
+type Screen = 'home' | 'table' | 'review' | 'replay' | 'trainers';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('home');
@@ -59,7 +60,17 @@ function App() {
     );
   }
 
-  return <HomeScreen onStart={handleStart} onReview={() => setScreen('review')} />;
+  if (screen === 'trainers') {
+    return <TrainersScreen onBack={() => setScreen('home')} />;
+  }
+
+  return (
+    <HomeScreen
+      onStart={handleStart}
+      onReview={() => setScreen('review')}
+      onTrainers={() => setScreen('trainers')}
+    />
+  );
 }
 
 export default App;
