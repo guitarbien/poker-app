@@ -46,8 +46,17 @@ function renderQuizBody(
   }
 }
 
-export function TrainersScreen({ onBack }: { onBack: () => void }) {
-  const [state, setState] = useState<TrainerState>({ view: 'menu' });
+interface TrainersScreenProps {
+  onBack: () => void;
+  initialModule?: TrainerName;
+}
+
+export function TrainersScreen({ onBack, initialModule }: TrainersScreenProps) {
+  const [state, setState] = useState<TrainerState>(
+    initialModule
+      ? { view: 'quiz', name: initialModule, mode: 'practice' }
+      : { view: 'menu' },
+  );
 
   if (state.view === 'quiz') {
     const { name, mode } = state;

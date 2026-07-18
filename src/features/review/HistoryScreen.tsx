@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { loadHands } from '../../review/recorder';
 import type { HandRecord } from '../../review/recorder';
+import type { TrainerName } from '../../trainers/progress';
 import { CardView } from '../table/CardView';
 import { DashboardScreen } from './DashboardScreen';
 import styles from './HistoryScreen.module.css';
@@ -8,6 +9,7 @@ import styles from './HistoryScreen.module.css';
 interface Props {
   onBack: () => void;
   onReplay: (record: HandRecord) => void;
+  onPractice?: (target: TrainerName) => void;
 }
 
 function formatTime(ts: number): string {
@@ -16,7 +18,7 @@ function formatTime(ts: number): string {
   return `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function HistoryScreen({ onBack, onReplay }: Props) {
+export function HistoryScreen({ onBack, onReplay, onPractice }: Props) {
   // 反序：最新在前
   const hands = useMemo(() => loadHands().slice().reverse(), []);
   const [tab, setTab] = useState<'history' | 'dashboard'>('history');
@@ -38,7 +40,7 @@ export function HistoryScreen({ onBack, onReplay }: Props) {
         </div>
       </div>
 
-      {tab === 'dashboard' && <DashboardScreen />}
+      {tab === 'dashboard' && <DashboardScreen onPractice={onPractice} />}
 
       {tab === 'history' && <div className={styles.listWrap}>
         {hands.length === 0 ? (

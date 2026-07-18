@@ -7,12 +7,14 @@ import { HistoryScreen } from './features/review/HistoryScreen';
 import { ReplayScreen } from './features/review/ReplayScreen';
 import { TrainersScreen } from './features/trainers/TrainersScreen';
 import type { HandRecord } from './review/recorder';
+import type { TrainerName } from './trainers/progress';
 
 type Screen = 'home' | 'table' | 'review' | 'replay' | 'trainers';
 
 function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [replayRecord, setReplayRecord] = useState<HandRecord | null>(null);
+  const [initialTrainer, setInitialTrainer] = useState<TrainerName | undefined>();
   const table = useTable();
 
   function handleStart(config: SessionConfig) {
@@ -28,6 +30,11 @@ function App() {
   function handleReplay(record: HandRecord) {
     setReplayRecord(record);
     setScreen('replay');
+  }
+
+  function handlePractice(target: TrainerName) {
+    setInitialTrainer(target);
+    setScreen('trainers');
   }
 
   if (screen === 'table') {
@@ -47,6 +54,7 @@ function App() {
       <HistoryScreen
         onBack={() => setScreen('home')}
         onReplay={handleReplay}
+        onPractice={handlePractice}
       />
     );
   }
@@ -61,7 +69,12 @@ function App() {
   }
 
   if (screen === 'trainers') {
-    return <TrainersScreen onBack={() => setScreen('home')} />;
+    return (
+      <TrainersScreen
+        onBack={() => { setInitialTrainer(undefined); setScreen('home'); }}
+        initialModule={initialTrainer}
+      />
+    );
   }
 
   return (

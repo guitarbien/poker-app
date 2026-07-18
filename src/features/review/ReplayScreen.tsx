@@ -151,15 +151,13 @@ export function ReplayScreen({ record, onBack }: Props) {
                 </span>
               )}
             </>
-          ) : stepIdx === 0 ? (
-            <span>手牌開始</span>
           ) : (
-            <span>手牌結束</span>
+            <span>手牌開始</span>
           )}
           {currentFlag?.detail && (
             <div className={styles.flagDetail}>
-              需要勝率 {(currentFlag.detail.requiredEquity! * 100).toFixed(1)}%，
-              估計 {(currentFlag.detail.estimatedEquity! * 100).toFixed(1)}%
+              需要勝率 {((currentFlag.detail.requiredEquity ?? 0) * 100).toFixed(1)}%，
+              估計 {((currentFlag.detail.estimatedEquity ?? 0) * 100).toFixed(1)}%
             </div>
           )}
         </div>

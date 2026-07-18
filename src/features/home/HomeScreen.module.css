@@ -112,3 +112,20 @@
 .startBtn:hover {
   background: #226b44;
 }
+
+.btnRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.startBtn.secondary {
+  background: #1e3347;
+  border-color: #4a6fa5;
+  color: #a0c8e8;
+}
+
+.startBtn.secondary:hover {
+  background: #274863;
+}

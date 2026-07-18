@@ -3,6 +3,7 @@ import { STATS_KEY, STATS_VERSION, EMPTY_STATS } from '../../stats/stats';
 import type { Stats } from '../../stats/stats';
 import { FLAGS_KEY, FLAGS_VERSION, EMPTY_AGGREGATES } from '../../review/grader';
 import type { FlagAggregates } from '../../review/grader';
+import type { TrainerName } from '../../trainers/progress';
 import styles from './DashboardScreen.module.css';
 
 function pct(num: number, den: number): string {
@@ -24,7 +25,17 @@ const KIND_UNIT: Record<keyof FlagAggregates, string> = {
 
 const KIND_ORDER: (keyof FlagAggregates)[] = ['preflop-loose', 'preflop-tight', 'call-without-odds'];
 
-export function DashboardScreen() {
+const KIND_TRAINER: Record<keyof FlagAggregates, TrainerName> = {
+  'preflop-loose': 'preflopRange',
+  'preflop-tight': 'preflopRange',
+  'call-without-odds': 'potOdds',
+};
+
+interface Props {
+  onPractice?: (target: TrainerName) => void;
+}
+
+export function DashboardScreen({ onPractice }: Props) {
   const stats: Stats = load(STATS_KEY, STATS_VERSION, EMPTY_STATS);
   const flags: FlagAggregates = load(FLAGS_KEY, FLAGS_VERSION, EMPTY_AGGREGATES);
 
@@ -81,8 +92,8 @@ export function DashboardScreen() {
               </div>
               <button
                 className={styles.practiceBtn}
-                disabled
-                title="訓練模組即將推出"
+                disabled={!onPractice}
+                onClick={() => onPractice?.(KIND_TRAINER[kind])}
               >
                 去練習
               </button>

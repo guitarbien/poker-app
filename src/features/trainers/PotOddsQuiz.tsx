@@ -54,7 +54,7 @@ export function PotOddsQuiz({ question, onAnswer, phase }: Props) {
           );
         })}
       </div>
-      {phase === 'feedback' && <p className={styles.explain}>{explainPotOdds(p)}</p>}
+      {phase === 'feedback' && <p className={styles.explain} data-testid="explanation">{explainPotOdds(p)}</p>}
     </div>
   );
 }

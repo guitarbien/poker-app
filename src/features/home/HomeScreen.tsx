@@ -127,14 +127,14 @@ export function HomeScreen({ onStart, onReview, onTrainers }: Props) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div className={styles.btnRow}>
         <button className={styles.startBtn} onClick={handleStart}>
           開始牌局
         </button>
-        <button className={styles.startBtn} onClick={onReview} style={{ background: '#1e3347', borderColor: '#4a6fa5', color: '#a0c8e8' }}>
+        <button className={`${styles.startBtn} ${styles.secondary}`} onClick={onReview}>
           檢討
         </button>
-        <button className={styles.startBtn} onClick={onTrainers} style={{ background: '#1e3347', borderColor: '#4a6fa5', color: '#a0c8e8' }}>
+        <button className={`${styles.startBtn} ${styles.secondary}`} onClick={onTrainers}>
           訓練
         </button>
       </div>
