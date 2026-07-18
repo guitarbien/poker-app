@@ -13,6 +13,7 @@ export default defineConfig({
         'src/storage/**/*.ts',
         'src/review/**/*.ts',
         'src/stats/**/*.ts',
+        'src/trainers/**/*.ts',
         'src/features/table/session.ts',
         'src/features/home/settings.ts',
       ],
