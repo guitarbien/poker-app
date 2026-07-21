@@ -4,6 +4,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages 專案站台在 /poker-app/ 子路徑；只在部署 CI 設 GITHUB_PAGES，
+  // 本地 dev / preview / e2e 維持 '/'，避免 playwright 的 goto('/') 打到子路徑 404
+  base: process.env.GITHUB_PAGES ? '/poker-app/' : '/',
   plugins: [
     react(),
     VitePWA({
@@ -17,7 +20,7 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: '/icon.svg',
+            src: 'icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
           },
