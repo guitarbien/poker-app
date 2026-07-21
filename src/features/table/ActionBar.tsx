@@ -55,6 +55,7 @@ export function ActionBar({ game, legalActions: la, onAction }: Props) {
             max={maxRaise}
             value={raiseAmount}
             disabled={disabled}
+            aria-label="加注金額滑桿"
             onChange={(e) => setRaiseAmount(Number(e.target.value))}
           />
           <input
@@ -63,6 +64,7 @@ export function ActionBar({ game, legalActions: la, onAction }: Props) {
             max={maxRaise}
             value={raiseAmount}
             disabled={disabled}
+            aria-label="加注金額"
             onChange={(e) => setRaiseAmount(clampRaise(Number(e.target.value)))}
           />
           <div className={styles.quickBtns}>

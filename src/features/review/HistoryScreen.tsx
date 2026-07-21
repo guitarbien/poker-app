@@ -57,7 +57,15 @@ export function HistoryScreen({ onBack, onReplay, onPractice }: Props) {
               <div
                 key={`${rec.handNumber}-${rec.timestamp}`}
                 className={`${styles.row}${hasFlagRow ? ' ' + styles.rowFlagged : ''}`}
+                role="button"
+                tabIndex={0}
                 onClick={() => onReplay(rec)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onReplay(rec);
+                  }
+                }}
               >
                 <div className={styles.meta}>
                   <span className={styles.handNum}>第 {rec.handNumber} 手</span>

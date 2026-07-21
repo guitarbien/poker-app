@@ -68,6 +68,7 @@ export function HomeScreen({ onStart, onReview, onTrainers }: Props) {
               <button
                 key={opt.label}
                 className={`${styles.optBtn}${settings.blinds.bb === opt.bb ? ' ' + styles.active : ''}`}
+                aria-pressed={settings.blinds.bb === opt.bb}
                 onClick={() => update({ blinds: { sb: opt.sb, bb: opt.bb } })}
               >
                 {opt.label}
@@ -84,6 +85,7 @@ export function HomeScreen({ onStart, onReview, onTrainers }: Props) {
               <button
                 key={n}
                 className={`${styles.optBtn}${settings.cpuCount === n ? ' ' + styles.active : ''}`}
+                aria-pressed={settings.cpuCount === n}
                 onClick={() => setCpuCount(n)}
               >
                 {n}
@@ -101,6 +103,7 @@ export function HomeScreen({ onStart, onReview, onTrainers }: Props) {
                 <button
                   key={d}
                   className={`${styles.optBtn}${allSameDiff === d ? ' ' + styles.active : ''}`}
+                  aria-pressed={allSameDiff === d}
                   onClick={() => setAllDiff(d)}
                 >
                   {DIFF_LABELS[d]}
@@ -116,6 +119,7 @@ export function HomeScreen({ onStart, onReview, onTrainers }: Props) {
                   <button
                     key={opt}
                     className={`${styles.optBtn} ${styles.small}${d === opt ? ' ' + styles.active : ''}`}
+                    aria-pressed={d === opt}
                     onClick={() => setCpuDiff(i, opt)}
                   >
                     {DIFF_LABELS[opt]}
