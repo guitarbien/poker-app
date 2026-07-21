@@ -101,7 +101,7 @@ export function EquityGuessQuiz({ question, onAnswer, phase }: Props) {
         </>
       ) : (
         result && (
-          <p className={styles.explain}>
+          <p className={styles.explain} data-testid="explanation">
             你估 {result.guess}%，實際勝率 {(result.actual * 100).toFixed(1)}%，
             誤差 {Math.abs(result.guess - result.actual * 100).toFixed(1)} 個百分點（±5 內算對）
           </p>

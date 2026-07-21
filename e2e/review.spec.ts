@@ -45,3 +45,23 @@ test('檢討流程：打一手 → 歷史 → 回放 → 儀表板', async ({ pa
   const handsText = await page.getByTestId('stat-hands').textContent();
   expect(Number(handsText)).toBeGreaterThanOrEqual(1);
 });
+
+test('弱點導練：儀表板「去練習」→ 進對應訓練 → 退出回檢討', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+
+  // 首頁 → 檢討 → 儀表板
+  await page.getByRole('button', { name: '檢討' }).click();
+  await page.getByTestId('tab-dashboard').click();
+
+  // 點「翻牌前開牌過鬆」的去練習 → 應導向起手牌範圍訓練
+  await page.getByTestId('weak-preflop-loose').getByRole('button', { name: '去練習' }).click();
+
+  // 進入起手牌範圍訓練（quiz 出題，answer-btn-open 為 preflopRange 專有）
+  await expect(page.getByTestId('answer-btn-open')).toBeVisible({ timeout: 10_000 });
+
+  // 退出 → 回檢討（儀表板 tab 仍在），而非回首頁
+  await page.getByRole('button', { name: '退出' }).click();
+  await expect(page.getByTestId('tab-dashboard')).toBeVisible();
+});
