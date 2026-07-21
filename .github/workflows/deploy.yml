@@ -24,7 +24,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      # 用 npm install 而非 npm ci：vite 8 底層 rolldown 的 wasm binding
+      # (@rolldown/binding-wasm32-wasi → @emnapi) 是跨平台 optional 依賴，
+      # 在 mac 產生的 lock 無法涵蓋 linux CI 需要的版本，npm ci 的嚴格比對會失敗
+      - run: npm install --no-audit --no-fund
       # GITHUB_PAGES 觸發 vite.config.ts 的子路徑 base；build 已含 tsc -b 型別檢查
       - run: npm run build
         env:
